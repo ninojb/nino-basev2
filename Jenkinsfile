@@ -26,12 +26,10 @@ node {
 	withCredentials([file(credentialsId: JWT_KEY_CRED_ID, variable: 'jwt_key_file')]){
 		stage('Deploy Code'){
 			if(isUnix()) {
-				//rc = sh returnStatus: true, script: "${toolbelt} force:auth:jwt:grant --clientid ${CONNECTED_APP_CONSUMER_KEY} --username ${HUB_ORG} --jwtkeyfile ${jwt_key_file} --setdefaultdevhubusername --instanceurl ${SFDC_HOST}"
+				rc = sh returnStatus: true, script: "${toolbelt} force:auth:jwt:grant --clientid ${CONNECTED_APP_CONSUMER_KEY} --username ${HUB_ORG} --jwtkeyfile ${jwt_key_file} --setdefaultdevhubusername --instanceurl ${SFDC_HOST}"
 			}else{
 				// bat "${toolbelt} update"
 				rc = bat returnStatus: true, script: "\"${toolbelt}\"sfdx force:auth:jwt:grant --clientid ${CONNECTED_APP_CONSUMER_KEY} --username ${HUB_ORG} --jwtkeyfile \"${jwt_key_file}\" --setdefaultdevhubusername --instanceurl ${SFDC_HOST} "
-				//rc = bat returnStatus:true, script: "sfdx force:org:list"
-				//rc = bat returnStatus: true, script: "sfdx force:auth:jwt:grant --clientid ${CONNECTED_APP_CONSUMER_KEY} --username ${HUB_ORG} --jwtkeyfile \"${jwt_key_file}\" --setdefaultdevhubusername --instanceurl ${SFDC_HOST} "
 			}
 
 			if(rc !=0) { error 'hub org authorization failed' }
@@ -40,10 +38,10 @@ node {
 
 			// need to pull out assigned username
 			if(isUnix()) {
-				//rmsg = sh returnStdout: true, script "${toolbelt} force:mdapi:deploy -d manifest/. -u ${HUB_ORG}"
+				//rmsg = sh returnStdout: true, script: "${toolbelt} force:mdapi:deploy -d manifest/. -u ${HUB_ORG}"
 			}else{
-				rmsg = bat returnStdout: true, script: "\"${toolbelt}\"sfdx force:mdapi:deploy -d manifest/. -u ${HUB_ORG}"
-				//rmsg = bat returnStdout: true, script "sfdx force:mdapi:deploy -d manifest/. -u ${HUB_ORG} "
+				//rmsg = bat returnStdout: true, script: "\"${toolbelt}\"sfdx force:mdapi:deploy -d manifest/. -u ${HUB_ORG}"
+				rmsg = bat returnStdout: true, script: "\"${toolbelt}\"sfdx force:source:deploy -p \"force-app\main\default\" -u ${HUB_ORG}"
 			}
 	
 			printf rmsg
